@@ -12,19 +12,43 @@ chao  = noone;
 grav  = 0.2;
 rglf  = 0;
 
+encomenda   = false;
+double_jump = false;
+has_dash    = false;
+
+//Dash
+dash_t = game_get_speed(gamespeed_fps) / 4;
+t_dash = dash_t;
+leng   = 3;
+carga  = 1;
+dcor   = 255; // Saturação do Dash/Cor
+dire   = 0; // Direção do Dash
+
+// Pulos
+pulo = 1;
+
 xscale = 1;
 yscale = 1;
 
 colisoes = [obj_wall, obj_plat];
-sprites  = [spr_player_idle, spr_player_walk, spr_player_fall, spr_player_jump];
+sprites  = [spr_player_idle, spr_player_walk, spr_player_fall, spr_player_jump, spr_player_walk];
 
+keyboard_set_map(ord("W"), vk_up);
+keyboard_set_map(ord("S"), vk_down);
 keyboard_set_map(ord("D"), vk_right);
 keyboard_set_map(ord("A"), vk_left);
-keyboard_set_map(ord("W"), vk_space);
+keyboard_set_map(ord("K"), vk_space);
+keyboard_set_map(ord("J"), vk_alt);
 
 inputs = function () {
-    rglf  = keyboard_check(vk_right) - keyboard_check(vk_left);
-    jump = keyboard_check_pressed(vk_space);
+    up    = keyboard_check(vk_up);
+    down  = keyboard_check(vk_down);
+    right = keyboard_check(vk_right);
+    left  = keyboard_check(vk_left);
+    rglf  = right - left;
+    updw  = down - up;
+    jump  = keyboard_check_pressed(vk_space);
+    dash  = keyboard_check_pressed(vk_alt);
 };
 
 movement = function () {
@@ -34,6 +58,12 @@ movement = function () {
     
     if (!chao) {
         velv += grav;
+        
+        if (double_jump and jump and pulo > 0) {
+            velv = -jspd;
+            squash(0.6, 1.4);
+            pulo--;
+        }
     } else {
         velv = 0;
         if (jump) {
@@ -99,7 +129,8 @@ enum states {
     idle,
     walk,
     fall,
-    jump
+    jump,
+    dash
 }
 
 estado = states.idle;
@@ -122,6 +153,12 @@ state_machine = function () {
                 estado = states.fall;
             }
             
+            if (has_dash and dash and carga > 0) {
+                dire = point_direction(0, 0, rglf, updw);
+                estado = states.dash;
+                carga--;
+            }
+            
             movement();
         break;
         case 1:
@@ -139,6 +176,12 @@ state_machine = function () {
                 estado = states.fall;
             }
             
+            if (has_dash and dash and carga > 0) {
+                dire = point_direction(0, 0, rglf, updw);
+                estado = states.dash;
+                carga--;
+            }
+            
             movement();
         break;
         case 2:
@@ -149,6 +192,12 @@ state_machine = function () {
                 estado = states.idle;
             }
             
+            if (has_dash and dash and carga > 0) {
+                dire = point_direction(0, 0, rglf, updw);
+                estado = states.dash;
+                carga--;
+            }
+             
             movement();
         break;
         case 3:
@@ -162,25 +211,57 @@ state_machine = function () {
                 estado = states.idle;
             }
             
+            if (has_dash and dash and carga > 0) {
+                dire = point_direction(0, 0, rglf, updw);
+                estado = states.dash;
+                carga--;
+            }
+            
             movement();
+        break;
+        case 4: 
+            t_dash--;
+            
+            velh = lengthdir_x(leng, dire);
+            velv = lengthdir_y(leng, dire);
+            
+            // Efeito no player
+            if (dire == 90 or dire == 270) {
+                squash(.7, 1.3);
+            } else {
+                squash(1.3, .7);
+            }
+            
+            if (t_dash <= 0) {
+                estado = states.walk;
+                t_dash = dash_t;
+                
+                // Diminuindo a velocidade
+                velh = (mspd * sign(velh) * .5);
+                velv = (jspd * sign(velv) * .5);
+            }
         break;
     }
 }
 
 device = function () {
     if (keyboard_check_pressed(vk_shift)) {
-        global.mundo = !global.mundo;
-        layer_set_visible(layer_get_id("Sombrio"), global.mundo);
-        layer_set_visible(layer_get_id("SombrioExtras"), global.mundo);
-        layer_set_visible(layer_get_id("BgSombrio"), global.mundo);
-        layer_set_visible(layer_get_id("Normal"), !global.mundo);
-        layer_set_visible(layer_get_id("NormalExtras"), !global.mundo);
-        layer_set_visible(layer_get_id("BgNormal"), !global.mundo);
+        if (instance_exists(obj_device)) {
+            with (obj_device) {
+            	if (cargas != 0) {
+                    global.mundo = !global.mundo;
+                    layer_set_visible(layer_get_id("Sombrio"), global.mundo);
+                    layer_set_visible(layer_get_id("SombrioExtras"), global.mundo);
+                    layer_set_visible(layer_get_id("BgSombrio"), global.mundo);
+                    layer_set_visible(layer_get_id("BgSombrioParallax"), global.mundo);
+                    layer_set_visible(layer_get_id("Normal"), !global.mundo);
+                    layer_set_visible(layer_get_id("NormalExtras"), !global.mundo);
+                    layer_set_visible(layer_get_id("BgNormal"), !global.mundo);
+                    cargas--;
+                }
+            }
+        }
     }
 }
 
 squash();
-
-//if (!instance_exists(obj_device)) {
-    //instance_create_layer(0, 0, "Player", obj_device);
-//}

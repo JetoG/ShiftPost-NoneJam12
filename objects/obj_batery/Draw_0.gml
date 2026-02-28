@@ -1,0 +1,1 @@
+draw_sprite(sprite_index, image_index, x, ystart + sin(timer * .03) * 3);

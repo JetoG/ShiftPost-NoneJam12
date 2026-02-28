@@ -67,3 +67,65 @@ function draw_squash(_spr=sprite_index, _img=image_index, _imgx=image_xscale, _i
 }
 
 #endregion
+
+/// @desc Aproxima um valor parecido com o Lerp
+/// @param {Real} _v1 Real
+/// @param {Real} _v2 Real
+/// @param {Real} _amt Quantidade
+function approach (_v1, _v2, _amt) {
+    if (_v1 < _v2) {
+        _v1 += _amt;
+        if (_v1 > _v2) {
+            return _v2;
+        }
+    } else {
+        _v1 -= _amt;
+        if (_v1 < _v2) {
+            return _v2;
+        }
+    }
+    return _v1;
+}
+
+fases[9] = false;
+pause    = false;
+
+function SaveGame () {
+    if (file_exists("save.sav")) {
+        file_delete("save.sav");
+    }
+    ini_open("save.sav");
+        ini_write_string("Fases", "levels", json_stringify(global.fases)); 
+    ini_close();
+}
+	
+function LoadGame () {
+    if (file_exists("save.sav")) {
+        ini_open("save.sav");
+            var _string_carregada = ini_read_string("Fases", "levels", "");
+            if (_string_carregada != "") {
+                global.fases = json_parse(_string_carregada);
+            }
+        ini_close();
+    }
+}
+
+function DeleteGame () {
+    if (file_exists("save.sav")) {
+        file_delete("save.sav");
+    }
+    global.fases = array_create(10, 0);
+}
+
+function CheckActualLevel () {
+    var _level = noone;
+    for (var i = 0; i < array_length(global.fases); i++) {
+    	if (global.fases[i] == 0) {
+        	_level = i;
+            break;
+        }
+    }
+    return _level;
+}
+
+LoadGame();

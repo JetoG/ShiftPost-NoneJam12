@@ -1,0 +1,3 @@
+timer++;
+collected();
+exists();
