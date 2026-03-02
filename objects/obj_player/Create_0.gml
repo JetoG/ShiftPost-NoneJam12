@@ -12,9 +12,15 @@ chao  = noone;
 grav  = 0.2;
 rglf  = 0;
 
-encomenda   = false;
-double_jump = false;
-has_dash    = false;
+if (room != rm_fase_10) {
+    encomenda   = false;
+    double_jump = false;
+    has_dash    = false;
+} else {
+    encomenda   = true;
+    double_jump = true;
+    has_dash    = true;
+}
 
 //Dash
 dash_t = game_get_speed(gamespeed_fps) / 4;
@@ -49,6 +55,8 @@ keyboard_set_map(ord("K"), vk_space);
 keyboard_set_map(ord("J"), vk_alt);
 
 inputs = function () {
+    if tp return;
+        
     up    = keyboard_check(vk_up);
     down  = keyboard_check(vk_down);
     right = keyboard_check(vk_right);
@@ -59,8 +67,10 @@ inputs = function () {
     dash  = keyboard_check_pressed(vk_alt);
 };
 
-movement = function () { 
+movement = function () {
     if (rglf != 0) dir = sign(rglf);
+        
+    if tp return;
     
     velh = rglf * mspd;
     
@@ -155,6 +165,7 @@ state_machine = function () {
             }
             
             if (has_dash and dash and carga > 0) {
+                play_sound(snd_dash);
                 if (rglf == 0 && updw == 0) {
                     dire = (dir == 1) ? 0 : 180;
                 } else {
@@ -182,6 +193,7 @@ state_machine = function () {
             }
             
             if (has_dash and dash and carga > 0) {
+                play_sound(snd_dash);
                 if (rglf == 0 && updw == 0) {
                     dire = (dir == 1) ? 0 : 180;
                 } else {
@@ -206,11 +218,18 @@ state_machine = function () {
             inputs();
             
             if (velv == 0 and chao) {
+                for (var i = 0; i < irandom_range(6, 12); i++) {
+                	var _x = random_range(x - sprite_width, x + sprite_width);
+                    var _fx = instance_create_layer(_x, y, "Colisores", obj_fx_smoke);
+                    _fx.image_index = irandom(7);
+                }
                 squash(1.4, 0.6, 0.1);
+                play_sound(snd_fall, 0.2);
                 estado = states.idle;
             }
             
             if (has_dash and dash and carga > 0) {
+                play_sound(snd_dash);
                 if (rglf == 0 && updw == 0) {
                     dire = (dir == 1) ? 0 : 180;
                 } else {
@@ -234,6 +253,7 @@ state_machine = function () {
             }
             
             if (has_dash and dash and carga > 0) {
+                play_sound(snd_dash);
                 if (rglf == 0 && updw == 0) {
                     dire = (dir == 1) ? 0 : 180;
                 } else {
@@ -252,10 +272,17 @@ state_machine = function () {
             if (double_jump and jump and pulo > 0) {
                 velv = -jspd;
                 pulo--;
+                play_sound(snd_jump, 0.4);
                 
                 // Cancelar dash
                 t_dash = dash_t;
                 estado = states.jump;
+                
+                for (var i = 0; i < irandom_range(6, 12); i++) {
+                	var _x = random_range(x - sprite_width, x + sprite_width);
+                    var _fx = instance_create_layer(_x, y, "Colisores", obj_fx_smoke);
+                    _fx.image_index = irandom(7);
+                }
                 
                 squash(0.8, 1.2);
                 break;
@@ -286,6 +313,8 @@ state_machine = function () {
             }
         break;
     }
+    
+    // Cai do mundo
     if (y - sprite_height >= room_height) {
         global.mundo = false;
         room_restart();
@@ -301,7 +330,7 @@ device = function () {
             with (obj_device) {
             	if (cargas != 0) {
                     cargas--;
-                    instance_create_layer(other.x, other.y - (sprite_get_height(spr_player_idle) / 2), "HUD", obj_teleport);
+                    instance_create_layer(other.x, other.y - (sprite_get_height(spr_player_idle) / 2), "HUD", obj_teleport, {start: false});
                 }
             }
         }
@@ -326,16 +355,29 @@ coyote_buffer_jump = function () {
     }
     
     if (buff_tt > 0 && (chao || coyo_tt > 0)) {
+        play_sound(snd_jump, 0.4);
         velv = -jspd;
         buff_tt = 0;
         coyo_tt = 0;
+        for (var i = 0; i < irandom_range(6, 12); i++) {
+            var _x = random_range(x - sprite_width, x + sprite_width);
+            var _fx = instance_create_layer(_x, y, "Colisores", obj_fx_smoke);
+            _fx.image_index = irandom(7);
+        }
         squash(0.8, 1.2);
     }
     
     // Double Jump
     if (!chao && coyo_tt <= 0 && double_jump && jump && pulo > 0) {
+        play_sound(snd_jump, 0.4);
         velv = -jspd;
         pulo--;
+        for (var i = 0; i < irandom_range(6, 12); i++) {
+            var _x = random_range(x - sprite_width, x + sprite_width);
+            var _fx = instance_create_layer(_x, y, "Colisores", obj_fx_smoke);
+            _fx.image_index = irandom(7);
+        }
+        squash(0.8, 1.2);
     }
 }
 

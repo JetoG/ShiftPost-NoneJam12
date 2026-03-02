@@ -3,6 +3,12 @@ cargas   = 0;
 cargas_d = cargas;
 cargas_g = cargas;
 
+alpha_dash = 1;
+blend_dash = c_white;
+
+alpha_pulo = 1;
+blend_pulo = c_white;
+
 draw_loads = function () {
     draw_self();
     
@@ -33,10 +39,26 @@ draw_loads = function () {
             draw_sprite_ext(spr_pack, 0, x + 4, y + 42, 1, 1, 0, c_white, image_alpha);
         }
         if (obj_player.has_dash) {
-            draw_sprite_ext(spr_dash, 0, x + 15, y + 39, 1, 1, 0, c_white, image_alpha);
+            if (obj_player.carga > 0) {
+                alpha_dash = 1;
+                blend_dash = c_white;
+            } else {
+                alpha_dash = .5;
+                blend_dash = c_dkgray;
+            }
+            draw_sprite_ext(spr_dash, 0, x + 15, y + 39, 1, 1, 0, blend_dash, alpha_dash);
+            draw_sprite_ext(spr_j, 0, x + 15, y + 47, .3, .3, 0, c_white, image_alpha);
         }
         if (obj_player.double_jump) {
-            draw_sprite_ext(spr_double_jump, 0, x + 27, y + 37, 1, 1, 0, c_white, image_alpha);
+            if (obj_player.pulo > 0) {
+                alpha_pulo = 1;
+                blend_pulo = c_white;
+            } else {
+                alpha_pulo = .5;
+                blend_pulo = c_dkgray;
+            }
+            draw_sprite_ext(spr_double_jump, 0, x + 27, y + 37, 1, 1, 0, blend_pulo, alpha_pulo);
+            draw_sprite_ext(spr_k, 0, x + 27, y + 47, .3, .3, 0, c_white, image_alpha);
         }
     }
 }

@@ -9,6 +9,11 @@ if (global.mundo) {
 if (instance_exists(obj_player)) {
     var _pl = instance_place(x, y, obj_player);
     if (_pl and _pl.encomenda and !global.mundo) {
-        room_goto_next();
+        if (!clear) {
+            obj_control.ClearFase();
+            clear = true;
+            play_sound(snd_door, 2);
+        }
+        instance_destroy(_pl);
     }
 }

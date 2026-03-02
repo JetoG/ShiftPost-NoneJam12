@@ -18,6 +18,7 @@ collected = function () {
                 	has_dash = true;
                 }
                 
+                play_sound(snd_dash_double, 0.6);
                 instance_destroy();
                 
                 instance_destroy(tlc_e);

@@ -1,4 +1,9 @@
-draw_self();
+if (image_index == 0) {
+    draw_self();
+} else {
+    draw_sprite_ext(sprite_index, image_index, x, ydraw, image_xscale, image_yscale, image_angle, image_blend, image_alpha);;
+}
+
 
 if (collision_rectangle(bbox_left - 3, bbox_top - 3, bbox_right + 2, bbox_bottom, obj_player, false, true) and !global.mundo) {
     if (!instance_exists(tlc_e)) {
@@ -10,6 +15,7 @@ if (collision_rectangle(bbox_left - 3, bbox_top - 3, bbox_right + 2, bbox_bottom
     }
     if (keyboard_check_pressed(ord("E"))) {
         if (instance_exists(obj_player)) {
+            play_sound(snd_package, 0.8);
             obj_player.encomenda = true;
             instance_destroy();
             instance_destroy(tlc_e);

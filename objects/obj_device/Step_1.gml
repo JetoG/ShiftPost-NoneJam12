@@ -14,3 +14,13 @@ if (place_meeting(x, y, [obj_player, obj_batery, obj_door, obj_pack])) {
 } else {
     image_alpha = 1;
 }
+
+if (cargas <= cargas_inicial * 0.2) {
+    if (!audio_is_playing(snd_low_baterry)) {
+        audio_play_sound(snd_low_baterry, 1, true);
+    }
+} else {
+    if (audio_is_playing(snd_low_baterry)) {
+        audio_stop_sound(snd_low_baterry);
+    }
+}

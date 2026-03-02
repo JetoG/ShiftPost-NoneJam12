@@ -6,6 +6,7 @@
 #macro Debug:gm_debug 1
 
 global.mundo = false;
+global.pause = false;
 
 #region ScreenShake
 
@@ -87,6 +88,18 @@ function approach (_v1, _v2, _amt) {
     return _v1;
 }
 
+/**
+ * Function Description
+ * @param {asset.gmsound} _sound Toca um som. Podendo escolher volume e o pitch
+ * @param {real} [_gain]=1 Volume
+ * @param {real} [_amt]=0.1 Pitch
+ */
+function play_sound (_sound, _gain=1, _amt=0.1) {
+    audio_stop_sound(_sound)
+    var _pit = random_range(1 - _amt, 1 + _amt);
+    audio_play_sound(_sound, 0, false, _gain, , _pit);
+}
+
 fases[9] = false;
 pause    = false;
 
@@ -126,6 +139,48 @@ function CheckActualLevel () {
         }
     }
     return _level;
+}
+
+/// @desc Alinhar textos
+/// @param {real} [_h]=-1 Horizontal
+/// @param {real} [_v]=-1 Vertical
+function text_align (_h=-1, _v=-1) {
+    draw_set_halign(_h);
+    draw_set_valign(_v);
+}
+
+
+/// @desc Aplica um efeito de movimento elástico baseado em Lerp, mantendo uma variável interna persistente por instância. 
+/// Permite que o valor acelere em direção ao alvo com o uma mola.
+/// A função cria automaticamente uma variável intera única (por instância) com o nome fornecido, 
+/// permitindo aplicar múltiplos efeitos elásticos no memos objeto sem conflito.
+/// @param  {string} _nam Nome base da variável interna que será criada. Deve ser único para cada propriedade que usar o efeito.
+/// @param  {any}    _val Valor atual que será suavizado pelo efeito.
+/// @param  {any}    _tar Valor alvo que o movimento tenta alcançar.
+/// @param  {real}   _for Intensidade da Força Elástica. Valores maiores aumentam o "puxão" inicial.
+/// @param  {real}   _amt Suavização do movimento (0 a 1). Controla o quanto o valor interno se aproxima do objetivo a cada step.
+/// @param  {real}   _ini Valor inicial da variável interna. Normalmente deixe 0.
+/// @return {real}   Retorna o valor suavizado (_val + deslocamento_elástico).
+function Elastic (_nam, _val, _tar, _for=1, _amt=.25, _ini=0) {
+    // ID do Objeto
+    var _id  = id;
+    // Variável Única
+    var _var = "spring_" + string("{0}_{1}", _nam, _id);
+    
+    // Verifica se a Variável não existe
+    if (!variable_instance_exists(_id, _var)) {
+        // Cria a variável
+        variable_instance_set(_id, _var, _ini);
+    }
+    
+    // Pegando a variável criada e aplicando o efeito
+    var _els = variable_instance_get(_id, _var);
+    _els = lerp(_els, (_tar - _val) * _for, _amt);
+     
+    // Atualizando a variável criada
+    variable_instance_set(_id, _var, _els);
+     
+    return _val + _els;
 }
 
 LoadGame();

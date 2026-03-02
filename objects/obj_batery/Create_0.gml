@@ -16,6 +16,7 @@ collected = function () {
             
             if (keyboard_check_pressed(ord("E"))) {
                 instance_destroy();
+                play_sound(snd_batery, .8);
                 with (obj_device) {
                     cargas += other.cargas;
                     cargas_inicial = cargas;
